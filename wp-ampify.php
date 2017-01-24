@@ -16,10 +16,21 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 define('WP_AMPIFY_VERSION', "0.1.1");
 define('WP_AMPIFY_PLUGIN_ROOT_PATH', plugin_dir_path( __FILE__ ));
+define('WP_AMPIFY_PLUGIN_ACCESS_TOKEN', 'd29d84d6c162f806c144a29d9d04ad3321bdaa65');
+
 
 
 //inlcude the amp plugin
 require_once 'amp/amp.php';
+
+
+function wp_ampify_check_for_update(){
+  require_once WP_AMPIFY_PLUGIN_ROOT_PATH . '/wp-updater.php';
+  if ( is_admin() ) {
+      new WPFDGitHubPluginUpdater( __FILE__, 'surajair', "wp-ampify", WP_AMPIFY_PLUGIN_ACCESS_TOKEN );
+  }
+}
+add_action('admin_init', 'wp_ampify_check_for_update');
 
 //change the default template file for the amp page
 function wp_ampify_set_custom_template( $file, $type, $post ) {

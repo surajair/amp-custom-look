@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/automattic/amp-wp
  * Author: Suraj Air
  * Author URI: http://happydoodles.in
- * Version: 0.1.2
+ * Version: 0.1.3
  * Text Domain: amp
  * Domain Path: /languages/
  * License: GPLv2 or later
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
-define('WP_AMPIFY_VERSION', "0.1.2");
+define('WP_AMPIFY_VERSION', "0.1.3");
 define('WP_AMPIFY_PLUGIN_ROOT_PATH', plugin_dir_path( __FILE__ ));
 define('WP_AMPIFY_PLUGIN_ACCESS_TOKEN', 'd29d84d6c162f806c144a29d9d04ad3321bdaa65');
 
@@ -30,13 +30,11 @@ function wp_ampify_check_for_update(){
       new WPFDGitHubPluginUpdater( __FILE__, 'surajair', "wp-ampify", WP_AMPIFY_PLUGIN_ACCESS_TOKEN );
   }
 }
-add_action('admin_init', 'wp_ampify_check_for_update');
+//add_action('admin_init', 'wp_ampify_check_for_update');
 
 //change the default template file for the amp page
 function wp_ampify_set_custom_template( $file, $type, $post ) {
-  if ( 'single' === $type ) {
-		$file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/' . $type . '.php';
-	}
+  $file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/' . $type . '.php';
   if($type === 'single' && wp_ampify_is_archive_page() ){
     $file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/loop.php';
   }

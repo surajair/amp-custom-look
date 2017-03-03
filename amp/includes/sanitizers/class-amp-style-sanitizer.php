@@ -33,7 +33,7 @@ class AMP_Style_Sanitizer extends AMP_Base_Sanitizer {
 					$new_class  = trim( $class . ' ' . $class_name );
 
 					$node->setAttribute( 'class', $new_class );
-					$this->styles[ '.' . $class_name ] = $style;
+					$this->styles[$node->tagName . '.' . $class_name ] = $style;
 				}
 
 				$node->removeAttribute( 'style' );

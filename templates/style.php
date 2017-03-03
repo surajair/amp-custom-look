@@ -42,7 +42,7 @@ $header_color            = $this->get_customizer_setting( 'header_color' );
 /* Template Styles */
 
 .amp-wp-content,
-.amp-wp-title-bar div {
+.amp-wp-title-bar div{
 	<?php if ( $content_max_width > 0 ) : ?>
 	margin: 0 auto;
 	max-width: <?php echo sprintf( '%dpx', $content_max_width ); ?>;
@@ -112,6 +112,15 @@ blockquote p:last-child {
 
 .amp-wp-header {
 	background-color: <?php echo sanitize_hex_color( $header_background_color ); ?>;
+}
+
+.wp-ampify-loop > div{
+	font-size: 1em;
+	font-weight: 400;
+	margin: 0 auto;
+	max-width: calc(840px - 32px);
+	padding: .875em 0px;
+	position: relative;
 }
 
 .amp-wp-header div {
@@ -223,7 +232,8 @@ blockquote p:last-child {
 
 /* Article Content */
 
-.amp-wp-article-content {
+.amp-wp-article-content,
+.wp-ampify-loop {
 	margin: 0 16px;
 }
 

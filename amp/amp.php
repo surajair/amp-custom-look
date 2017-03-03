@@ -1,6 +1,5 @@
 <?php
 /**
- * Plugin Name: AMP
  * Description: Add AMP support to your WordPress site.
  * Plugin URI: https://github.com/automattic/amp-wp
  * Author: Automattic

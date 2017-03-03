@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: WP AMPify
- * Description: Enables AMP for posts/pages/ archives etc
- * Plugin URI: https://github.com/automattic/amp-wp
+ * Description: Enables AMP for posts/pages/archives etc
+ * Plugin URI: https://github.com/surajair/wp-ampify
  * Author: Suraj Air
  * Author URI: http://happydoodles.in
- * Version: 0.1.2
+ * Version: 1.0.0
  * Text Domain: amp
  * Domain Path: /languages/
  * License: GPLv2 or later
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
-define('WP_AMPIFY_VERSION', "0.1.2");
+define('WP_AMPIFY_VERSION', "1.0.0");
 define('WP_AMPIFY_PLUGIN_ROOT_PATH', plugin_dir_path( __FILE__ ));
 define('WP_AMPIFY_PLUGIN_ACCESS_TOKEN', 'd29d84d6c162f806c144a29d9d04ad3321bdaa65');
 
@@ -23,6 +23,28 @@ define('WP_AMPIFY_PLUGIN_ACCESS_TOKEN', 'd29d84d6c162f806c144a29d9d04ad3321bdaa6
 //inlcude the amp plugin
 require_once 'amp/amp.php';
 
+
+function wp_ampify_activate() {
+  if ( ! did_action( 'amp_init' ) ) {
+    amp_init();
+  }
+  flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, 'wp_ampify_activate' );
+
+function wp_ampify_deactivate() {
+  // We need to manually remove the amp endpoint
+  global $wp_rewrite;
+  foreach ( $wp_rewrite->endpoints as $index => $endpoint ) {
+    if ( AMP_QUERY_VAR === $endpoint[1] ) {
+      unset( $wp_rewrite->endpoints[ $index ] );
+      break;
+    }
+  }
+
+  flush_rewrite_rules();
+}
+register_deactivation_hook( __FILE__, 'wp_ampify_deactivate' );
 
 function wp_ampify_check_for_update(){
   require_once WP_AMPIFY_PLUGIN_ROOT_PATH . '/wp-updater.php';
@@ -34,25 +56,38 @@ add_action('admin_init', 'wp_ampify_check_for_update');
 
 //change the default template file for the amp page
 function wp_ampify_set_custom_template( $file, $type, $post ) {
-  if ( 'single' === $type ) {
-		$file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/' . $type . '.php';
-	}
+  $custom_file = get_template_directory() . '/templates/amp/' . $type . '.php';
   if($type === 'single' && wp_ampify_is_archive_page() ){
-    $file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/loop.php';
-  }
-
-  if($type === 'single'){
-    if ( wp_ampify_is_amp_front_page() && wp_ampify_is_amp_home()) {
-      $file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/loop.php';
-    } elseif ( wp_ampify_is_amp_home() ) {
-      $file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/loop.php';
+    $custom_file = get_template_directory() . '/templates/amp/loop.php';
+    if(!file_exists($custom_file)){ 
+      $custom_file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/loop.php';
     }
   }
 
-  return $file;
+  if($type === 'single'){
+    if ((wp_ampify_is_amp_front_page() && wp_ampify_is_amp_home()) || wp_ampify_is_amp_home()) {
+      $custom_file = get_template_directory() . '/templates/amp/loop.php';
+
+      if(!file_exists($custom_file)){ 
+        $custom_file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/loop.php';
+      }
+    }
+    
+  }
+  //fallback to default template file if not found
+  if(!file_exists($custom_file)){ 
+    $custom_file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/' . $type . '.php';
+  }
+  return $custom_file;
 }
 add_filter( 'amp_post_template_file', 'wp_ampify_set_custom_template', 10, 3 );
 
+
+function wp_ampify_custom_css_styles(){
+  $custom_css = get_option('_wp_ampify_custom_css','');
+  echo $custom_css;
+}
+add_action( 'amp_post_template_css', 'wp_ampify_custom_css_styles' );
 
 function wp_ampify_title() {
   if (is_home()) {
@@ -73,16 +108,16 @@ function wp_ampify_title() {
 }
 
 function wp_ampify_sanitize_content($content){
-  list( $sanitized_content, $scripts, $styles ) = AMP_Content_Sanitizer::sanitize($content, apply_filters( 'amp_content_sanitizers', array(
-    'AMP_Style_Sanitizer' => array(),
-    'AMP_Blacklist_Sanitizer' => array(),
-    'AMP_Img_Sanitizer' => array(),
-    'AMP_Video_Sanitizer' => array(),
-    'AMP_Audio_Sanitizer' => array(),
-    'AMP_Iframe_Sanitizer' => array(
-      'add_placeholder' => true,
-    )
-  ), null));
+  list( $sanitized_content, $scripts, $styles ) = AMP_Content_Sanitizer::sanitize($content, apply_filters('amp_content_sanitizers', array(
+      'AMP_Style_Sanitizer' => array(),
+      'AMP_Blacklist_Sanitizer' => array(),
+      'AMP_Img_Sanitizer' => array(),
+      'AMP_Video_Sanitizer' => array(),
+      'AMP_Audio_Sanitizer' => array(),
+      'AMP_Iframe_Sanitizer' => array(
+        'add_placeholder' => true,
+      )
+    ), null));
   return $sanitized_content;
 }
 
@@ -183,5 +218,31 @@ add_filter( 'template_include', 'wp_ampify_amp_endpoint_template', 5, 1 );
 
 
 function wp_ampify_is_archive_page(){
-  return ( is_archive() || is_paged() || is_author() || is_category() || is_tag() ) && 'post' == get_post_type();
+  return is_archive();
 }
+
+
+function wp_ampify_options(){
+  add_options_page( 'WP AMPify', 'WP AMPify', 'manage_options', 'wp-ampify', 'wp_ampify_css_page', '', 10 );  
+}
+add_action( 'admin_menu', 'wp_ampify_options' );
+
+
+function wp_ampify_css_page(){
+  include_once('admin/custom-css.php');  
+}
+
+function wp_ampify_save_custom_css(){
+  // var_dump($_POST['wp_ampify_custom_css']);die;
+  if(!isset($_POST['wp_ampify_custom_css'])){
+    return;
+  }
+  if (isset($_POST['wp_ampify_css']) && !wp_verify_nonce($_POST['wp_ampify_css'], 'wp_ampify_css' ) ){
+    wp_die('Invalid');
+  }
+
+  $css = $_POST['wp_ampify_custom_css'];
+  update_option('_wp_ampify_custom_css', stripcslashes($css));
+  $_SESSION['wp_ampify_settings_saved'] = 'Settings Saved';
+}
+add_action('wp_loaded', 'wp_ampify_save_custom_css');

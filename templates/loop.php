@@ -5,7 +5,7 @@
 <?php $this->load_parts( array( 'header-bar' ) ); ?> 
 <div class="wp-ampify-loop"> 
   <div class="loop"> 
-    <div class="amp-blog-loop"> 
+  	<div class="amp-blog-loop"> 
       <?php while(have_posts()): the_post(); ?> 
         <article class="amp-blog"> 
           <?php echo wp_ampify_sanitize_content(get_the_post_thumbnail()); ?> 

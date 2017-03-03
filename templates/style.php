@@ -119,7 +119,7 @@ blockquote p:last-child {
 	font-weight: 400;
 	margin: 0 auto;
 	max-width: calc(840px - 32px);
-	padding: .875em 16px;
+	padding: .875em 0px;
 	position: relative;
 }
 
@@ -232,7 +232,8 @@ blockquote p:last-child {
 
 /* Article Content */
 
-.amp-wp-article-content {
+.amp-wp-article-content,
+.wp-ampify-loop {
 	margin: 0 16px;
 }
 

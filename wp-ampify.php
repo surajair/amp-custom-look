@@ -246,3 +246,46 @@ function wp_ampify_save_custom_css(){
   $_SESSION['wp_ampify_settings_saved'] = 'Settings Saved';
 }
 add_action('wp_loaded', 'wp_ampify_save_custom_css');
+
+
+function wp_ampify_save_fonts(){
+  // var_dump($_POST['wp_ampify_custom_css']);die;
+  if(!isset($_POST['wp_ampify_fonts_nonce'])){
+    return;
+  }
+  if (isset($_POST['wp_ampify_fonts_nonce']) && !wp_verify_nonce($_POST['wp_ampify_fonts_nonce'], 'wp_ampify_fonts_nonce' ) ){
+    wp_die('Invalid');
+  }
+
+  $fonts = trim($_POST['wp_ampify_fonts']);
+  if('' === $fonts){
+    update_option('_wp_ampify_fonts', array());
+  }
+  else{
+    $fonts = explode(',', $fonts);
+    update_option('_wp_ampify_fonts', $fonts);
+  }
+  $_SESSION['wp_ampify_settings_saved'] = 'Settings Saved';
+}
+add_action('wp_loaded', 'wp_ampify_save_fonts');
+
+
+
+function wp_ampify_remove_default_font($data, $post){
+  unset($data['font_urls']['merriweather']);
+    
+  $fonts = get_option('_wp_ampify_fonts', array());
+  foreach ($fonts as  $i => $font) {
+    $data['font_urls']['font' . $i] = $font;
+  }
+  return $data;
+}
+add_filter( 'amp_post_template_data', 'wp_ampify_remove_default_font', 10, 2 );
+
+function wp_ampify_post_template_head($amp_template){
+  $font_awesome = get_option('_wp_ampify_font_awesome', 'no');
+  if('yes' === $font_awesome){ ?>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <?php }
+}
+add_action( 'amp_post_template_head', 'wp_ampify_post_template_head', 10, 1);

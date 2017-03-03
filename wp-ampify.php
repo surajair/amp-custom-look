@@ -67,10 +67,13 @@ function wp_ampify_set_custom_template( $file, $type, $post ) {
     } elseif ( wp_ampify_is_amp_home() ) {
       $custom_file = get_template_directory() . '/templates/amp/loop.php';
     }
+    if(!file_exists($custom_file)){ 
+      $custom_file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/loop.php';
+    }
   }
   //fallback to default template file if not found
   if(!file_exists($custom_file)){ 
-    $custom_file = $file;
+    $custom_file = WP_AMPIFY_PLUGIN_ROOT_PATH . '/templates/' . $type . '.php';
   }
   return $custom_file;
 }

@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/surajair/wp-ampify
  * Author: Suraj Air
  * Author URI: http://happydoodles.in
- * Version: 1.0.0
+ * Version: 1.2.0
  * Text Domain: amp
  * Domain Path: /languages/
  * License: GPLv2 or later
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
-define('WP_AMPIFY_VERSION', "1.0.0");
+define('WP_AMPIFY_VERSION', "1.2.0");
 define('WP_AMPIFY_PLUGIN_ROOT_PATH', plugin_dir_path( __FILE__ ));
 define('WP_AMPIFY_PLUGIN_ACCESS_TOKEN', 'd29d84d6c162f806c144a29d9d04ad3321bdaa65');
 

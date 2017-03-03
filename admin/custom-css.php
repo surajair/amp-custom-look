@@ -1,4 +1,4 @@
-<h1>Settings</h1>
+<h2>WP AMPify Settings</h2>
 <?php 
 
 if(isset($_SESSION['wp_ampify_settings_saved'])){
@@ -30,7 +30,7 @@ if(isset($_SESSION['wp_ampify_settings_saved'])){
 		<style>
 		pre.ace_editor {
 		    width: 95%;
-		    height: 500px;
+		    height: 400px;
 		}
 		</style>
 		<p>Add your custom css here</p>
